@@ -88,7 +88,7 @@ function cache<T>(
     try {
       let body = await fn(...args)
       await fs.outputJSON(f, body)
-      return body
+      return fs.readJSON(f)
     } catch (err) {
       if (!useCacheOnFail) throw err
       return fs.readJSON(f)
@@ -155,7 +155,7 @@ const getWeather = cache('weather', async ({ latitude, longitude }: LatLon) => {
   // notify('fetching weather data')
   debug('fetching weather...')
   const { body } = await HTTP.get(`http://api.weatherstack.com/current?access_key=${api_key}&query=Minneapolis&units=f`)
-  return body as IWeatherResponse
+  return JSON.parse(body) as IWeatherResponse
 })
 
 async function run() {
@@ -164,7 +164,8 @@ async function run() {
   const { latitude, longitude } = await getLatLon()
   debug('lat %o, lon: %o', latitude, longitude)
   const weather = await getWeather({ latitude, longitude })
-  debug('Weather struct: %s', weather)
+  //debug('Weather struct: %o', weather)
+  //console.log(weather.current)
   let currently = weather.current.weather_descriptions
   let current_temp = weather.current.temperature
   debug('got weather: %s and %s', currently, current_temp)
