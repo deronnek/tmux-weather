@@ -60,16 +60,13 @@ type LatLon = {
 }
 
 interface IWeatherResponse {
-  daily: {
-    summary: string
-  }
-  currently: {
-    icon: string
+  current: {
+    weather_descriptions: string[]
     temperature: string
   }
 }
 
-const forecastIOApiKey = require(path.join(configDir, 'forecastio.json')).token
+const api_key = require(path.join(configDir, 'weatherstack.json')).token
 
 function cache<T>(
   key: string,
@@ -80,7 +77,7 @@ function cache<T>(
     let f = path.join(cacheDir, `${key}.json`)
     try {
       let fi = await fs.stat(f)
-      if (fi && minutesAgo(20) < fi.mtime) {
+      if (fi && minutesAgo(60) < fi.mtime) {
         return await fs.readJSON(f)
       }
     } catch (err) {
@@ -99,33 +96,33 @@ function cache<T>(
   }
 }
 
-function getIcon(weather: IWeatherResponse['currently']) {
-  switch (weather.icon) {
-    case 'clear-day':
+function getIcon(weather: IWeatherResponse['current']) {
+  switch (weather.weather_descriptions[0]) {
+    case 'Sunny':
       // TODO: add sunrise/sunset 🌇 🌅
       return '☀️'
     case 'clear-night':
       return '🌙'
     case 'sleet':
-    case 'rain':
+    case 'Light Rain':
       return '☔'
-    case 'snow':
+    case 'Snow':
       return '❄️'
     case 'wind':
       return '💨'
     case 'fog':
       return '🌁'
-    case 'cloudy':
+    case 'Cloudy':
+    case 'Overcast':
       return '☁️'
-    case 'partly-cloudy-night':
-    case 'partly-cloudy-day':
+    case 'Partly cloudy':
       return '⛅️'
     default:
-      return weather.icon
+      return '?'
   }
 }
 
-function temp(weather: IWeatherResponse['currently']) {
+function temp(weather: IWeatherResponse['current']) {
   let temp = parseInt(weather.temperature)
   let color
   if (temp < 40) color = 27
@@ -157,7 +154,7 @@ const getLatLon = cache(
 const getWeather = cache('weather', async ({ latitude, longitude }: LatLon) => {
   // notify('fetching weather data')
   debug('fetching weather...')
-  const { body } = await HTTP.get(`https://api.forecast.io/forecast/${forecastIOApiKey}/${latitude},${longitude}`)
+  const { body } = await HTTP.get(`http://api.weatherstack.com/current?access_key=${api_key}&query=Minneapolis&units=f`)
   return body as IWeatherResponse
 })
 
@@ -167,7 +164,10 @@ async function run() {
   const { latitude, longitude } = await getLatLon()
   debug('lat %o, lon: %o', latitude, longitude)
   const weather = await getWeather({ latitude, longitude })
-  debug('got weather: %s', weather.daily.summary)
-  console.log(`${getIcon(weather.currently)} ${temp(weather.currently)}`)
+  debug('Weather struct: %s', weather)
+  let currently = weather.current.weather_descriptions
+  let current_temp = weather.current.temperature
+  debug('got weather: %s and %s', currently, current_temp)
+  console.log(`${getIcon(weather.current)} ${temp(weather.current)}`)
 }
 run().catch(errorAndExit)
