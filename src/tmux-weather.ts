@@ -101,7 +101,7 @@ function getIcon(weather: IWeatherResponse['current']) {
     case 'Sunny':
       // TODO: add sunrise/sunset 🌇 🌅
       return '☀️'
-    case 'clear-night':
+    case 'Clear':
       return '🌙'
     case 'sleet':
     case 'Light Rain':
@@ -118,7 +118,7 @@ function getIcon(weather: IWeatherResponse['current']) {
     case 'Partly cloudy':
       return '⛅️'
     default:
-      return '?'
+      return weather.weather_descriptions[0]
   }
 }
 
