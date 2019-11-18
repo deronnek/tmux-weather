@@ -110,7 +110,7 @@ function getIcon(weather: IWeatherResponse['current']) {
       return '❄️'
     case 'wind':
       return '💨'
-    case 'fog':
+    case 'Fog':
       return '🌁'
     case 'Cloudy':
     case 'Overcast':
@@ -169,6 +169,6 @@ async function run() {
   let currently = weather.current.weather_descriptions
   let current_temp = weather.current.temperature
   debug('got weather: %s and %s', currently, current_temp)
-  console.log(`${getIcon(weather.current)} ${temp(weather.current)}`)
+  console.log(`${getIcon(weather.current)}  ${temp(weather.current)}`)
 }
 run().catch(errorAndExit)
