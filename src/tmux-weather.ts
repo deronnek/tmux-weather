@@ -112,6 +112,8 @@ function getIcon(weather: IWeatherResponse['current']) {
       return '💨'
     case 'Fog':
       return '🌁'
+    case 'Haze':
+      return '🌫️'
     case 'Cloudy':
     case 'Overcast':
       return '☁️'
