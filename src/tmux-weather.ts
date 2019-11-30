@@ -107,7 +107,10 @@ function getIcon(weather: IWeatherResponse['current']) {
     case 'Light Rain':
       return '☔'
     case 'Snow':
+    case 'Light Snow':
       return '❄️'
+    case 'Light Snow, Mist':
+      return '❄️  and Mist'
     case 'wind':
       return '💨'
     case 'Fog':
