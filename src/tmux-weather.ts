@@ -106,6 +106,8 @@ function getIcon(weather: IWeatherResponse['current']) {
     case 'sleet':
     case 'Light Rain':
       return '☔'
+    case 'Light Rain, Mist':
+      return '🌧️'
     case 'Snow':
     case 'Light Snow':
       return '❄️'
@@ -123,14 +125,39 @@ function getIcon(weather: IWeatherResponse['current']) {
     case 'Partly cloudy':
       return '⛅️'
     default:
-      return weather.weather_descriptions[0]
+      //return weather.weather_descriptions[0]
+      let colour = 12
+      return `#[fg=colour${colour}]${weather.weather_descriptions[0]}`
   }
 }
 
+type colorMap = { [key: string]: number }
+
 function temp(weather: IWeatherResponse['current']) {
   let temp = parseInt(weather.temperature)
-  let color
-  if (temp < 40) color = 27
+  var color: number = 21
+  let cmap: colorMap = {
+    '-20.0': 21,
+    '-8.0': 57,
+    '4.0': 93,
+    '16.0': 129,
+    '28.0': 165,
+    '40.0': 201,
+    '52.0': 200,
+    '64.0': 199,
+    '76.0': 198,
+    '88.0': 197,
+    '100.0': 196,
+  }
+  for (let key in cmap) {
+    if (temp > parseInt(key)) {
+      color = cmap[key]
+    }
+  }
+
+  if (temp < 0) color = 7
+  else if (temp < 32) color = 4
+  else if (temp < 40) color = 27
   else if (temp < 50) color = 39
   else if (temp < 60) color = 50
   else if (temp < 70) color = 220
