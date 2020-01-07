@@ -97,6 +97,7 @@ function cache<T>(
 }
 
 function getIcon(weather: IWeatherResponse['current']) {
+  let colour = 12
   switch (weather.weather_descriptions[0]) {
     case 'Sunny':
       // TODO: add sunrise/sunset 🌇 🌅
@@ -108,12 +109,14 @@ function getIcon(weather: IWeatherResponse['current']) {
       return '☔'
     case 'Light Rain, Mist':
       return '🌧️'
+    case 'Snow, Freezing Fog':
+      return `#[fg=colour${colour}]` + '❄️  and freezing fog'
     case 'Snow':
       return '❄️'
     case 'Light Snow':
       return '🌨️'
     case 'Light Snow, Mist':
-      return '❄️  and Mist'
+      return `#[fg=colour${colour}]` + '❄️  and Mist'
     case 'wind':
       return '💨'
     case 'Fog':
@@ -127,7 +130,6 @@ function getIcon(weather: IWeatherResponse['current']) {
       return '⛅️'
     default:
       //return weather.weather_descriptions[0]
-      let colour = 12
       return `#[fg=colour${colour}]${weather.weather_descriptions[0]}`
   }
 }
@@ -138,33 +140,44 @@ function temp(weather: IWeatherResponse['current']) {
   let temp = parseInt(weather.temperature)
   var color: number = 21
   let cmap: colorMap = {
-    '-20.0': 21,
-    '-8.0': 57,
-    '4.0': 93,
-    '16.0': 129,
-    '28.0': 165,
-    '40.0': 201,
-    '52.0': 200,
-    '64.0': 199,
-    '76.0': 198,
-    '88.0': 197,
-    '100.0': 196,
+    '100': 124,
+    '92': 130,
+    '85': 136,
+    '78': 142,
+    '71': 106,
+    '64': 70,
+    '57': 34,
+    '50': 35,
+    '43': 36,
+    '36': 37,
+    '29': 31,
+    '22': 25,
+    '15': 21,
+    '8': 55,
+    '1': 91,
+    '-5': 127,
+    '-12': 126,
+    '-20': 125,
   }
   for (let key in cmap) {
-    if (temp > parseInt(key)) {
+    debug(key)
+    if (temp < parseInt(key)) {
       color = cmap[key]
+      break
     }
   }
-
-  if (temp < 0) color = 7
+  /*
+  if      (temp <  0) color = 111
   else if (temp < 32) color = 4
-  else if (temp < 40) color = 27
-  else if (temp < 50) color = 39
-  else if (temp < 60) color = 50
+  else if (temp < 40) color = 39
+  else if (temp < 50) color = 69
+  else if (temp < 60) color = 105
   else if (temp < 70) color = 220
   else if (temp < 80) color = 208
   else if (temp < 90) color = 202
-  else color = 196
+
+  else if (temp > 90) color = 196
+ */
   return `#[fg=colour${color}]${temp}`
 }
 
