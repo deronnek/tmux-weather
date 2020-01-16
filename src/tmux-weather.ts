@@ -63,6 +63,7 @@ interface IWeatherResponse {
   current: {
     weather_descriptions: string[]
     temperature: string
+    feelslike: string
   }
 }
 
@@ -138,32 +139,72 @@ type colorMap = { [key: string]: number }
 
 function temp(weather: IWeatherResponse['current']) {
   let temp = parseInt(weather.temperature)
+  let feelslike = parseInt(weather.feelslike)
+  debug(weather)
   var color: number = 21
-  let cmap: colorMap = {
-    '100': 124,
-    '92': 130,
-    '85': 136,
-    '78': 142,
-    '71': 106,
-    '64': 70,
-    '57': 34,
-    '50': 35,
-    '43': 36,
-    '36': 37,
-    '29': 31,
-    '22': 25,
-    '15': 21,
-    '8': 55,
-    '1': 91,
-    '-5': 127,
-    '-12': 126,
-    '-20': 125,
+  var fcolor: number = 21
+  //let cmap: colorMap = {
+  //  '100': 124,
+  //  '92': 130,
+  //  '85': 136,
+  //  '78': 142,
+  //  '71': 106,
+  //  '64': 70,
+  //  '57': 34,
+  //  '50': 35,
+  //  '43': 36,
+  //  '36': 37,
+  //  '29': 31,
+  //  '22': 25,
+  //  '15': 21,
+  //  '8': 55,
+  //  '1': 91,
+  //  '-5': 127,
+  //  '-12': 126,
+  //  '-20': 125,
+  //}
+
+  //let cmap: colorMap = {"100": 196, "95": 202, "90": 208, "86": 214, "81": 220, "76": 190, "72": 154, "67": 118, "63": 82, "58": 46, "53": 47, "49": 48, "44":
+  //49, "39": 50, "35": 45, "30": 39, "26": 33, "21": 27, "16": 21, "12": 57, "7": 93, "3": 129, "-1": 165, "-6": 200, "-10": 199, "-15":
+  //198, "-20": 197}
+  let cmap: [string, number][] = [
+    ['100', 196],
+    ['95', 202],
+    ['90', 208],
+    ['86', 214],
+    ['81', 220],
+    ['76', 190],
+    ['72', 154],
+    ['67', 118],
+    ['63', 82],
+    ['58', 46],
+    ['53', 47],
+    ['49', 48],
+    ['44', 49],
+    ['39', 50],
+    ['35', 45],
+    ['30', 39],
+    ['26', 33],
+    ['21', 27],
+    ['16', 21],
+    ['12', 57],
+    ['7', 93],
+    ['3', 129],
+    ['-1', 165],
+    ['-6', 200],
+    ['-10', 199],
+    ['-15', 198],
+    ['-20', 197],
+  ]
+
+  for (let i = 0; i < cmap.length; i++) {
+    if (temp < parseInt(cmap[i][0])) {
+      color = cmap[i][1]
+    }
   }
-  for (let key in cmap) {
-    debug(key)
-    if (temp < parseInt(key)) {
-      color = cmap[key]
-      break
+  for (let i = 0; i < cmap.length; i++) {
+    if (feelslike < parseInt(cmap[i][0])) {
+      fcolor = cmap[i][1]
     }
   }
   /*
@@ -178,7 +219,9 @@ function temp(weather: IWeatherResponse['current']) {
 
   else if (temp > 90) color = 196
  */
-  return `#[fg=colour${color}]${temp}`
+  debug(color)
+  debug(fcolor)
+  return `#[fg=colour${color}]${temp} 	🌬️ #[fg=colour${fcolor}]${feelslike}`
 }
 
 function minutesAgo(minutes: number) {
