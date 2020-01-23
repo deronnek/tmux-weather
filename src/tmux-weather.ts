@@ -221,7 +221,7 @@ function temp(weather: IWeatherResponse['current']) {
  */
   debug(color)
   debug(fcolor)
-  return `#[fg=colour${color}]${temp} 	🌬️ #[fg=colour${fcolor}]${feelslike}`
+  return `#[fg=colour${color}]${temp} 	🌬️  #[fg=colour${fcolor}]${feelslike}`
 }
 
 function minutesAgo(minutes: number) {
