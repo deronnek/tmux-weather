@@ -59,6 +59,25 @@ type LatLon = {
   longitude: number
 }
 
+interface NWSWeatherResponse {
+  //context: [
+  //{
+  properties: {
+    temperature: {
+      value: number
+    }
+    windChill: {
+      value: number
+    }
+    heatIndex: {
+      value: number
+    }
+    textDescription: string
+  }
+  // }
+  //]
+}
+
 interface IWeatherResponse {
   current: {
     weather_descriptions: string[]
@@ -78,7 +97,7 @@ function cache<T>(
     let f = path.join(cacheDir, `${key}.json`)
     try {
       let fi = await fs.stat(f)
-      if (fi && minutesAgo(60) < fi.mtime) {
+      if (fi && minutesAgo(30) < fi.mtime) {
         return await fs.readJSON(f)
       }
     } catch (err) {
@@ -97,9 +116,9 @@ function cache<T>(
   }
 }
 
-function getIcon(weather: IWeatherResponse['current']) {
+function getIcon(weather: NWSWeatherResponse) {
   let colour = 12
-  switch (weather.weather_descriptions[0]) {
+  switch (weather.properties.textDescription) {
     case 'Sunny':
       // TODO: add sunrise/sunset 🌇 🌅
       return '☀️'
@@ -124,6 +143,7 @@ function getIcon(weather: IWeatherResponse['current']) {
       return '🌁'
     case 'Haze':
       return '🌫️'
+    case 'Mostly Cloudy':
     case 'Cloudy':
     case 'Overcast':
       return '☁️'
@@ -131,16 +151,29 @@ function getIcon(weather: IWeatherResponse['current']) {
       return '⛅️'
     default:
       //return weather.weather_descriptions[0]
-      return `#[fg=colour${colour}]${weather.weather_descriptions[0]}`
+      return `#[fg=colour${colour}]${weather.properties.textDescription}`
   }
 }
 
 type colorMap = { [key: string]: number }
 
-function temp(weather: IWeatherResponse['current']) {
-  let temp = parseInt(weather.temperature)
-  let feelslike = parseInt(weather.feelslike)
-  debug(weather)
+function cToF(temp: number) {
+  debug(temp)
+  return Math.floor(temp * (9 / 5) + 32)
+}
+
+function feelsLike(weather: NWSWeatherResponse) {
+  if (weather.properties.windChill.value != null) {
+    return cToF(weather.properties.windChill.value)
+  } else if (weather.properties.heatIndex.value != null) {
+    return cToF(weather.properties.heatIndex.value)
+  }
+  return cToF(weather.properties.temperature.value)
+}
+
+function temp(weather: NWSWeatherResponse) {
+  let temp = cToF(weather.properties.temperature.value)
+  let feelslike = feelsLike(weather)
   var color: number = 21
   var fcolor: number = 21
   //let cmap: colorMap = {
@@ -243,8 +276,9 @@ const getLatLon = cache(
 const getWeather = cache('weather', async ({ latitude, longitude }: LatLon) => {
   // notify('fetching weather data')
   debug('fetching weather...')
-  const { body } = await HTTP.get(`http://api.weatherstack.com/current?access_key=${api_key}&query=Minneapolis&units=f`)
-  return JSON.parse(body) as IWeatherResponse
+  //const { body } = await HTTP.get(`http://api.weatherstack.com/current?access_key=${api_key}&query=Minneapolis&units=f`)
+  const { body } = await HTTP.get(`https://api.weather.gov/stations/KMSP/observations/latest`)
+  return JSON.parse(body) as NWSWeatherResponse
 })
 
 async function run() {
@@ -254,10 +288,10 @@ async function run() {
   debug('lat %o, lon: %o', latitude, longitude)
   const weather = await getWeather({ latitude, longitude })
   //debug('Weather struct: %o', weather)
-  //console.log(weather.current)
-  let currently = weather.current.weather_descriptions
-  let current_temp = weather.current.temperature
-  debug('got weather: %s and %s', currently, current_temp)
-  console.log(`${getIcon(weather.current)}  ${temp(weather.current)}`)
+  debug(weather.properties)
+  let currently = weather.properties.textDescription
+  let current_temp = weather.properties.temperature
+  //debug('got weather: %s and %s', currently, current_temp)
+  console.log(`${getIcon(weather)}  ${temp(weather)}`)
 }
 run().catch(errorAndExit)
