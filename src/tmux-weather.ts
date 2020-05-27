@@ -119,6 +119,7 @@ function cache<T>(
 function getIcon(weather: NWSWeatherResponse) {
   let colour = 12
   switch (weather.properties.textDescription) {
+    case 'Mostly Clear':
     case 'Sunny':
       // TODO: add sunrise/sunset 🌇 🌅
       return '☀️'
@@ -148,6 +149,7 @@ function getIcon(weather: NWSWeatherResponse) {
     case 'Overcast':
       return '☁️'
     case 'Partly cloudy':
+    case 'Partly Cloudy':
       return '⛅️'
     default:
       //return weather.weather_descriptions[0]
@@ -158,7 +160,11 @@ function getIcon(weather: NWSWeatherResponse) {
 type colorMap = { [key: string]: number }
 
 function cToF(temp: number) {
+  debug('Temp:')
   debug(temp)
+  if (temp == null) {
+    return NaN
+  }
   return Math.floor(temp * (9 / 5) + 32)
 }
 
@@ -168,6 +174,11 @@ function feelsLike(weather: NWSWeatherResponse) {
   } else if (weather.properties.heatIndex.value != null) {
     return cToF(weather.properties.heatIndex.value)
   }
+  if (weather.properties.temperature.value == null) {
+    debug('NULL TEMPERATURE')
+    return '???'
+  }
+
   return cToF(weather.properties.temperature.value)
 }
 
