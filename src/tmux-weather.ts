@@ -86,7 +86,7 @@ interface IWeatherResponse {
   }
 }
 
-const api_key = require(path.join(configDir, 'weatherstack.json')).token
+//const api_key = require(path.join(configDir, 'weatherstack.json')).token
 
 function cache<T>(
   key: string,
@@ -125,7 +125,10 @@ function getIcon(weather: NWSWeatherResponse) {
       return '☀️'
     case 'Clear':
       return '🌙'
+    case 'Thunderstorms and Rain':
+      return '⚡☔'
     case 'sleet':
+    case 'Rain':
     case 'Light Rain':
       return '☔'
     case 'Light Rain, Mist':
