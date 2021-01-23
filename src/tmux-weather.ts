@@ -20,12 +20,12 @@ function logError(err: Error) {
   let log = fs.createWriteStream(p)
   log.write(new Date() + '\n')
   log.write(err.stack + '\n')
-  console.log(`#[fg=red]${p.replace(os.homedir(), '~')}`)
+  console.log(`#[fg=red]Weather data unavailable`)
   try {
     fs.removeSync(path.join(cacheDir, 'weather.json'))
   } catch (err) {
     console.error(err)
-    notify(err.stack)
+    // notify(err.stack)
   }
 }
 
@@ -39,7 +39,7 @@ function notify(msg?: string) {
 
 function submitError(err: Error) {
   console.error(err.stack)
-  notify(err.stack)
+  // notify(err.stack)
   logError(err)
 }
 
@@ -86,7 +86,7 @@ interface IWeatherResponse {
   }
 }
 
-const api_key = require(path.join(configDir, 'weatherstack.json')).token
+// const api_key = require(path.join(configDir, 'weatherstack.json')).token
 
 function cache<T>(
   key: string,
@@ -295,7 +295,9 @@ const getWeather = cache('weather', async ({ latitude, longitude }: LatLon) => {
 async function run() {
   await fs.mkdirp(cacheDir)
 
-  const { latitude, longitude } = await getLatLon()
+  // const { latitude, longitude } = await getLatLon()
+  const latitude = 0.0
+  const longitude = 0.0
   debug('lat %o, lon: %o', latitude, longitude)
   const weather = await getWeather({ latitude, longitude })
   //debug('Weather struct: %o', weather)
