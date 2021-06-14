@@ -20,12 +20,13 @@ function logError(err: Error) {
   let log = fs.createWriteStream(p)
   log.write(new Date() + '\n')
   log.write(err.stack + '\n')
-  console.log(`#[fg=red]${p.replace(os.homedir(), '~')}`)
+  // console.log(`#[fg=red]${p.replace(os.homedir(), '~')}`)
+  console.log(`#[fg=red]No weather data`)
   try {
     fs.removeSync(path.join(cacheDir, 'weather.json'))
   } catch (err) {
     console.error(err)
-    notify(err.stack)
+    // notify(err.stack)
   }
 }
 
@@ -39,7 +40,8 @@ function notify(msg?: string) {
 
 function submitError(err: Error) {
   console.error(err.stack)
-  notify(err.stack)
+  // I don't need to get a notification every time NWS fails me
+  // notify(err.stack)
   logError(err)
 }
 
@@ -156,7 +158,8 @@ function getIcon(weather: NWSWeatherResponse) {
       return '⛅️'
     default:
       //return weather.weather_descriptions[0]
-      return `#[fg=colour${colour}]${weather.properties.textDescription}`
+      const short_desc = weather.properties.textDescription.substring(0, 20)
+      return `#[fg=colour${colour}]${short_desc}`
   }
 }
 
